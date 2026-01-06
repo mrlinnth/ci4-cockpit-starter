@@ -1,68 +1,285 @@
-# CodeIgniter 4 Application Starter
+# CodeIgniter 4 + Cockpit CMS + Blade Starter
 
-## What is CodeIgniter?
+A modern starter template integrating **CodeIgniter 4**, **Laravel Blade templating**, and **Cockpit CMS** as a headless content management system.
 
-CodeIgniter is a PHP full-stack web framework that is light, fast, flexible and secure.
-More information can be found at the [official site](https://codeigniter.com).
+## 🚀 Features
 
-This repository holds a composer-installable app starter.
-It has been built from the
-[development repository](https://github.com/codeigniter4/CodeIgniter4).
+- **CodeIgniter 4** - Lightweight, fast PHP framework
+- **Laravel Blade** - Powerful templating engine (via `jenssegers/blade`)
+- **Cockpit CMS** - Headless CMS for flexible content management
+- **API-Driven** - No local database required
+- **Modern Stack** - PHP 8.1+, Composer-based dependencies
 
-More information about the plans for version 4 can be found in [CodeIgniter 4](https://forum.codeigniter.com/forumdisplay.php?fid=28) on the forums.
+## 📋 What's Included
 
-You can read the [user guide](https://codeigniter.com/user_guide/)
-corresponding to the latest version of the framework.
+- ✅ Blade templating engine fully integrated with CI4
+- ✅ Helper functions for easy Blade rendering
+- ✅ Example Blade layouts and components
+- ✅ BladeView library for advanced usage
+- ✅ Ready for Cockpit CMS API integration
+- ✅ Auto-loaded Blade helper (`view_blade()`)
 
-## Installation & updates
+## 📦 Installation
 
-`composer create-project codeigniter4/appstarter` then `composer update` whenever
-there is a new release of the framework.
+### Requirements
 
-When updating, check the release notes to see if there are any changes you might need to apply
-to your `app` folder. The affected files can be copied or merged from
-`vendor/codeigniter4/framework/app`.
+- PHP 8.1 or higher
+- Composer
+- Required PHP extensions:
+  - intl
+  - mbstring
+  - json
+  - libcurl
 
-## Setup
+### Setup
 
-Copy `env` to `.env` and tailor for your app, specifically the baseURL
-and any database settings.
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd ci4-cockpit-starter
+   ```
 
-## Important Change with index.php
+2. **Install dependencies**
+   ```bash
+   composer install
+   ```
 
-`index.php` is no longer in the root of the project! It has been moved inside the *public* folder,
-for better security and separation of components.
+3. **Configure environment**
+   ```bash
+   cp env .env
+   ```
 
-This means that you should configure your web server to "point" to your project's *public* folder, and
-not to the project root. A better practice would be to configure a virtual host to point there. A poor practice would be to point your web server to the project root and expect to enter *public/...*, as the rest of your logic and the
-framework are exposed.
+   Edit `.env` and configure:
+   - `app.baseURL` - Your application URL
+   - Cockpit CMS API settings (if using)
 
-**Please** read the user guide for a better explanation of how CI4 works!
+4. **Set permissions**
+   ```bash
+   chmod -R 755 writable/
+   ```
 
-## Repository Management
+5. **Start development server**
+   ```bash
+   php spark serve
+   ```
 
-We use GitHub issues, in our main repository, to track **BUGS** and to track approved **DEVELOPMENT** work packages.
-We use our [forum](http://forum.codeigniter.com) to provide SUPPORT and to discuss
-FEATURE REQUESTS.
+   Visit: `http://localhost:8080`
 
-This repository is a "distribution" one, built by our release preparation script.
-Problems with it can be raised on our forum, or as issues in the main repository.
+## 🎨 Using Blade Templates
 
-## Server Requirements
+### Quick Start
 
-PHP version 8.1 or higher is required, with the following extensions installed:
+**In your controller:**
+```php
+<?php
 
-- [intl](http://php.net/manual/en/intl.requirements.php)
-- [mbstring](http://php.net/manual/en/mbstring.installation.php)
+namespace App\Controllers;
 
-> [!WARNING]
-> - The end of life date for PHP 7.4 was November 28, 2022.
-> - The end of life date for PHP 8.0 was November 26, 2023.
-> - If you are still using PHP 7.4 or 8.0, you should upgrade immediately.
-> - The end of life date for PHP 8.1 will be December 31, 2025.
+class Home extends BaseController
+{
+    public function index()
+    {
+        return view_blade('welcome', [
+            'title' => 'Welcome to CI4 + Blade',
+            'items' => ['Feature 1', 'Feature 2', 'Feature 3']
+        ]);
+    }
+}
+```
 
-Additionally, make sure that the following extensions are enabled in your PHP:
+**Create a Blade view** (`app/Views/welcome.blade.php`):
+```blade
+@extends('layouts.master')
 
-- json (enabled by default - don't turn it off)
-- [mysqlnd](http://php.net/manual/en/mysqlnd.install.php) if you plan to use MySQL
-- [libcurl](http://php.net/manual/en/curl.requirements.php) if you plan to use the HTTP\CURLRequest library
+@section('title', $title)
+
+@section('content')
+    <h1>{{ $title }}</h1>
+
+    <ul>
+        @foreach($items as $item)
+            <li>{{ $item }}</li>
+        @endforeach
+    </ul>
+@endsection
+```
+
+### Blade Documentation
+
+For complete Blade integration documentation, see **[BLADE.md](BLADE.md)**.
+
+## 🌐 Cockpit CMS Integration
+
+### Setup Cockpit Connection
+
+Add to your `.env`:
+```env
+cockpit.apiUrl = https://your-cockpit-instance.com/api
+cockpit.apiToken = your-api-token-here
+```
+
+### Example: Fetching Content from Cockpit
+
+```php
+<?php
+
+namespace App\Controllers;
+
+class Articles extends BaseController
+{
+    public function index()
+    {
+        // Fetch from Cockpit API
+        $client = \Config\Services::curlrequest();
+        $response = $client->get(env('cockpit.apiUrl') . '/collections/get/articles', [
+            'headers' => [
+                'Cockpit-Token' => env('cockpit.apiToken')
+            ]
+        ]);
+
+        $data = json_decode($response->getBody(), true);
+
+        // Render with Blade
+        return view_blade('articles.index', [
+            'articles' => $data['entries'] ?? []
+        ]);
+    }
+}
+```
+
+**Blade view** (`app/Views/articles/index.blade.php`):
+```blade
+@extends('layouts.master')
+
+@section('content')
+    <h1>Articles</h1>
+
+    @foreach($articles as $article)
+        <article>
+            <h2>{{ $article['title'] }}</h2>
+            <p>{{ $article['excerpt'] }}</p>
+        </article>
+    @endforeach
+@endsection
+```
+
+## 📁 Project Structure
+
+```
+ci4-cockpit-starter/
+├── app/
+│   ├── Config/              # Configuration files
+│   ├── Controllers/         # Application controllers
+│   ├── Views/               # Blade templates (*.blade.php)
+│   │   ├── layouts/         # Master layouts
+│   │   ├── components/      # Reusable components
+│   │   └── welcome.blade.php
+│   ├── Libraries/           # BladeView library
+│   ├── Helpers/             # blade_helper.php
+│   └── ...
+├── public/                  # Web root
+│   └── index.php           # Application entry point
+├── writable/
+│   └── cache/blade/        # Blade compiled templates
+├── vendor/                  # Composer dependencies
+├── .env                     # Environment configuration
+├── composer.json            # Dependencies
+├── BLADE.md                 # Blade documentation
+├── CLAUDE.md                # Project context (for AI)
+└── README.md               # This file
+```
+
+## 🛠️ Development
+
+### Blade Features Available
+
+- Layouts and template inheritance (`@extends`, `@section`)
+- Components and includes (`@include`, `@component`)
+- Control structures (`@if`, `@foreach`, `@for`)
+- Custom directives
+- Automatic XSS protection
+- Template caching for performance
+
+### Helper Functions
+
+```php
+// Render a Blade view
+view_blade('viewname', $data);
+
+// Get BladeView instance
+blade()->render('viewname', $data);
+
+// Clear Blade cache
+blade()->clearCache();
+
+// Add custom directive
+blade()->directive('datetime', function($expression) {
+    return "<?php echo ($expression)->format('Y-m-d H:i'); ?>";
+});
+```
+
+## 📚 Documentation
+
+- **[BLADE.md](BLADE.md)** - Complete Blade integration guide
+- **[CLAUDE.md](CLAUDE.md)** - Project context and AI instructions
+- [CodeIgniter 4 User Guide](https://codeigniter.com/user_guide/)
+- [Laravel Blade Docs](https://laravel.com/docs/blade)
+- [Cockpit CMS API](https://getcockpit.com/documentation/api)
+
+## 🎯 Architecture
+
+This project follows a **headless CMS architecture**:
+
+1. **Cockpit CMS** - Manages content via API
+2. **CodeIgniter 4** - Handles routing, business logic, API consumption
+3. **Blade Templates** - Renders beautiful views
+4. **No Database** - All content comes from Cockpit API
+
+```
+┌─────────────┐      ┌──────────────┐      ┌─────────────┐
+│             │      │              │      │             │
+│ Cockpit CMS │─────▶│ CodeIgniter 4│─────▶│   Blade     │
+│    (API)    │ JSON │  (Controller)│ Data │ (Template)  │
+│             │      │              │      │             │
+└─────────────┘      └──────────────┘      └─────────────┘
+```
+
+## 🔧 Configuration
+
+### Important Files
+
+- **`.env`** - Environment configuration
+- **`app/Config/Autoload.php`** - Auto-loads Blade helper
+- **`app/Libraries/BladeView.php`** - Blade integration library
+- **`app/Helpers/blade_helper.php`** - Helper functions
+
+## 🚨 Important Notes
+
+- **No Database Required** - This starter doesn't use a local database
+- **No Authentication** - This is a content display starter
+- **API-Driven** - All data comes from Cockpit CMS
+- **Blade Required** - All views should use `.blade.php` extension
+
+## 🤝 Contributing
+
+This is a starter template. Fork it, customize it, make it your own!
+
+## 📄 License
+
+MIT License - Feel free to use this starter for any project.
+
+## 🆘 Support
+
+- **Issues**: Check the CodeIgniter and Blade documentation
+- **Blade Package**: [jenssegers/blade](https://github.com/jenssegers/blade)
+- **CI4 Forum**: [forum.codeigniter.com](https://forum.codeigniter.com)
+
+## 🎓 Learning Resources
+
+- [CodeIgniter 4 Tutorial](https://codeigniter.com/user_guide/tutorial/index.html)
+- [Blade Templates Guide](https://laravel.com/docs/blade)
+- [Cockpit CMS Quickstart](https://getcockpit.com/documentation)
+
+---
+
+**Built with** ❤️ **using CodeIgniter 4, Laravel Blade, and Cockpit CMS**

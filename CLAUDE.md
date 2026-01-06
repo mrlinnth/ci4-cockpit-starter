@@ -42,21 +42,29 @@ This project serves as:
 ```
 ci4-cockpit-starter/
 ├── app/
-│   ├── Config/          # Configuration files
-│   ├── Controllers/     # Application controllers
-│   ├── Views/          # Blade view templates (*.blade.php)
-│   │   ├── layouts/    # Blade layouts
-│   │   └── components/ # Reusable Blade components
-│   ├── Libraries/      # Custom libraries (BladeView)
-│   ├── Helpers/        # Helper functions (blade_helper)
+│   ├── Config/
+│   │   └── Services.php       # Service definitions (blade, cockpit)
+│   ├── Controllers/
+│   │   ├── BaseController.php # Base for API/CLI controllers
+│   │   ├── WebController.php  # Base for web pages (extends BaseController)
+│   │   └── Home.php           # Example web controller (extends WebController)
+│   ├── Views/                 # Blade view templates (*.blade.php)
+│   │   ├── layouts/           # Blade layouts
+│   │   └── components/        # Reusable Blade components
+│   ├── Libraries/
+│   │   ├── BladeView.php      # Blade templating engine wrapper
+│   │   └── CockpitService.php # Cockpit CMS API client with caching
+│   ├── Helpers/
+│   │   └── blade_helper.php   # Blade helper functions
 │   └── ...
-├── public/             # Web root (index.php lives here)
-├── vendor/             # Composer dependencies
+├── public/                    # Web root (index.php lives here)
+├── vendor/                    # Composer dependencies
 ├── writable/
-│   └── cache/blade/   # Blade compiled views cache
-├── .env               # Environment configuration
-├── composer.json      # PHP dependencies
-└── BLADE.md           # Blade templating documentation
+│   └── cache/blade/          # Blade compiled views cache
+├── .env                      # Environment configuration
+├── composer.json             # PHP dependencies
+├── BLADE.md                  # Blade templating documentation
+└── CLAUDE.md                 # This file - project context
 ```
 
 ## Key Configuration
@@ -93,6 +101,84 @@ This project integrates with Cockpit CMS by:
 2. Parsing JSON responses
 3. Rendering content in Blade views
 
+### Architecture Rules
+
+**IMPORTANT:** The following architecture rules must be strictly followed:
+
+#### 1. No Models or Entities
+- **Rule**: Do NOT create local CodeIgniter 4 Models or Entities
+- **Reason**: All data comes from Cockpit CMS API, not a local database
+- **Implementation**: Use `App\Libraries\CockpitService` for all data retrieval
+
+#### 2. No Migrations
+- **Rule**: Do NOT create CodeIgniter 4 Migrations
+- **Reason**: Database structure is managed solely in Cockpit CMS
+- **Implementation**: Configure content models in Cockpit, not in CI4
+
+#### 3. Controller Inheritance
+- **WebController**: Use `App\Controllers\WebController` for all HTML pages (Home, About, Blog, etc.)
+  - This class extends `BaseController`
+  - Automatically initializes CMS (`$this->cockpit`) and View engine (`$this->blade`)
+  - Provides convenient `render()` method for Blade views
+  - Example:
+    ```php
+    class Home extends WebController
+    {
+        public function index()
+        {
+            $data = $this->cockpit->getSingletonCached('homepage');
+            return $this->render('home', ['data' => $data]);
+        }
+    }
+    ```
+
+- **BaseController**: Keep clean for API/CLI use
+  - Do NOT add web-specific initialization to BaseController
+  - Reserve for API controllers or CLI commands that don't need CMS/Views
+  - Example: REST API controllers, CLI commands, cron jobs
+
+#### 4. Services Layer
+- **Rule**: Access libraries via `Config\Services`
+- **Available Services**:
+  - `Services::blade()` - Get BladeView instance
+  - `Services::cockpit()` - Get CockpitService instance
+- **Implementation**:
+  ```php
+  // In controllers
+  $blade = Services::blade();
+  $cockpit = Services::cockpit();
+
+  // Or use inherited properties in WebController
+  $this->blade->render('view', $data);
+  $this->cockpit->getSingletonCached('homepage');
+  ```
+
+#### 5. Caching Strategy
+- **Rule**: All Cockpit API calls MUST be cached
+- **Implementation**: Use caching methods in `CockpitService`
+  - `getSingletonCached($name, $ttl)` - For singleton resources
+  - `getCollectionCached($name, $filter, $ttl)` - For collections
+  - Default TTL: 3600 seconds (1 hour)
+- **Example**:
+  ```php
+  // Cached API call (recommended)
+  $data = $this->cockpit->getSingletonCached('homepage', 1800); // 30 min cache
+
+  // Cached collection with filter
+  $posts = $this->cockpit->getCollectionCached('posts', ['published' => true]);
+  ```
+
+#### 6. Data Flow Pattern
+```
+Controller (WebController)
+    ↓
+CockpitService (with caching)
+    ↓
+Cockpit CMS API
+    ↓
+Blade View (via BladeView)
+```
+
 ## Development Guidelines
 
 ### When Working on This Project
@@ -115,8 +201,13 @@ This project integrates with Cockpit CMS by:
 
 ## Important Notes for AI Assistants
 
+- **Follow Architecture Rules**: Strictly adhere to the Architecture Rules section above
 - **Use Blade for views**: All views should use Blade templating (`.blade.php` extension)
 - **Blade helper is auto-loaded**: The `view_blade()` helper function is available globally
+- **No Models/Migrations**: Do NOT create CI4 Models, Entities, or Migrations - use `CockpitService` instead
+- **Controller inheritance**: Web pages extend `WebController`, not `BaseController`
+- **Use Services**: Access `blade()` and `cockpit()` via `Config\Services`
+- **Cache all API calls**: Use `getSingletonCached()` and `getCollectionCached()` methods
 - **Database files can be ignored**: Database.php and migration-related configs exist in the starter template but are not used
 - **Focus on API integration**: The core functionality revolves around consuming Cockpit CMS APIs
 - **Stateless approach**: This is a read-only application that displays content from Cockpit

@@ -19,14 +19,33 @@ use CodeIgniter\Config\BaseService;
  */
 class Services extends BaseService
 {
-    /*
-     * public static function example($getShared = true)
-     * {
-     *     if ($getShared) {
-     *         return static::getSharedInstance('example');
-     *     }
+    /**
+     * Blade View Service
      *
-     *     return new \CodeIgniter\Example();
-     * }
+     * @param bool $getShared
+     * @return \App\Libraries\BladeView
      */
+    public static function blade(bool $getShared = true)
+    {
+        if ($getShared) {
+            return static::getSharedInstance('blade');
+        }
+
+        return new \App\Libraries\BladeView();
+    }
+
+    /**
+     * Cockpit CMS Service
+     *
+     * @param bool $getShared
+     * @return \App\Libraries\CockpitService
+     */
+    public static function cockpit(bool $getShared = true)
+    {
+        if ($getShared) {
+            return static::getSharedInstance('cockpit');
+        }
+
+        return new \App\Libraries\CockpitService();
+    }
 }

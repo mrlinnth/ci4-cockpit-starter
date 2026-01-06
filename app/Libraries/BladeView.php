@@ -2,21 +2,21 @@
 
 namespace App\Libraries;
 
-use Jenssegers\Blade\Blade;
+use eftec\bladeone\BladeOne;
 
 /**
  * BladeView Library
  *
- * Integrates Laravel Blade templating engine with CodeIgniter 4
+ * Integrates BladeOne templating engine with CodeIgniter 4
  *
  * @package App\Libraries
  */
 class BladeView
 {
     /**
-     * Blade instance
+     * BladeOne instance
      *
-     * @var Blade
+     * @var BladeOne
      */
     protected $blade;
 
@@ -48,8 +48,14 @@ class BladeView
             mkdir($this->cachePath, 0755, true);
         }
 
-        // Initialize Blade
-        $this->blade = new Blade($this->viewsPath, $this->cachePath);
+        // Initialize BladeOne
+        // MODE_AUTO = 0: checks if compiled file has changed
+        // MODE_SLOW = 1: always recompile (development)
+        // MODE_FAST = 2: never recompile (production)
+        // MODE_DEBUG = 5: always compile with identifiable filenames
+
+        $mode = ENVIRONMENT === 'production' ? BladeOne::MODE_FAST : BladeOne::MODE_AUTO;
+        $this->blade = new BladeOne($this->viewsPath, $this->cachePath, $mode);
     }
 
     /**
@@ -61,27 +67,27 @@ class BladeView
      */
     public function render(string $view, array $data = []): string
     {
-        return $this->blade->render($view, $data);
+        return $this->blade->run($view, $data);
     }
 
     /**
-     * Make a Blade view (returns View instance for chaining)
+     * Make a Blade view (alias for render for compatibility)
      *
      * @param string $view View name (without .blade.php extension)
      * @param array $data Data to pass to the view
-     * @return \Illuminate\View\View
+     * @return string
      */
-    public function make(string $view, array $data = [])
+    public function make(string $view, array $data = []): string
     {
-        return $this->blade->make($view, $data);
+        return $this->render($view, $data);
     }
 
     /**
-     * Get the Blade instance
+     * Get the BladeOne instance
      *
-     * @return Blade
+     * @return BladeOne
      */
-    public function getBlade(): Blade
+    public function getBlade(): BladeOne
     {
         return $this->blade;
     }
@@ -96,6 +102,29 @@ class BladeView
     public function directive(string $name, callable $handler): void
     {
         $this->blade->directive($name, $handler);
+    }
+
+    /**
+     * Set the compile mode
+     *
+     * @param int $mode BladeOne::MODE_AUTO, MODE_SLOW, MODE_FAST, or MODE_DEBUG
+     * @return void
+     */
+    public function setMode(int $mode): void
+    {
+        $this->blade->setMode($mode);
+    }
+
+    /**
+     * Share a value across all views
+     *
+     * @param string $key Variable name
+     * @param mixed $value Variable value
+     * @return void
+     */
+    public function share(string $key, $value): void
+    {
+        $this->blade->share($key, $value);
     }
 
     /**

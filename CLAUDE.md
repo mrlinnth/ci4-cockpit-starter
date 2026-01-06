@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-This is a **CodeIgniter 4 + Cockpit CMS + Blade Starter Project** - a demonstration and starter template for building applications that use CodeIgniter 4 as the framework, Laravel Blade as the templating engine, and Cockpit CMS as a headless content management system.
+This is a **CodeIgniter 4 + Cockpit CMS + Blade Starter Project** - a demonstration and starter template for building applications that use CodeIgniter 4 as the framework, Blade (via BladeOne) as the templating engine, and Cockpit CMS as a headless content management system.
 
 ## Purpose
 
@@ -16,7 +16,7 @@ This project serves as:
 ### Tech Stack
 
 - **Frontend Framework**: CodeIgniter 4 (PHP 8.1+)
-- **Templating Engine**: Laravel Blade (via jenssegers/blade)
+- **Templating Engine**: Blade (via eftec/bladeone)
 - **Content Management**: Cockpit CMS (Headless CMS)
 - **Data Flow**: API consumption from Cockpit CMS endpoints
 - **No Database**: This project does NOT use a local database
@@ -25,7 +25,7 @@ This project serves as:
 ### Key Characteristics
 
 ✅ **What This Project DOES:**
-- Use Laravel Blade templating engine for views
+- Use Blade templating engine for views
 - Consume API endpoints from Cockpit CMS
 - Display content fetched from Cockpit
 - Demonstrate headless CMS integration patterns
@@ -71,8 +71,8 @@ ci4-cockpit-starter/
 
 ### Blade Templating
 
-This project uses Laravel Blade templating engine for views:
-- **Package**: `jenssegers/blade` (well-maintained, widely used)
+This project uses BladeOne templating engine for views:
+- **Package**: `eftec/bladeone` (lightweight, zero dependencies, actively maintained)
 - **Helper Function**: `view_blade('viewname', $data)`
 - **Library**: `App\Libraries\BladeView`
 - **Views Location**: `app/Views/*.blade.php`
@@ -125,8 +125,8 @@ This project integrates with Cockpit CMS by:
 ## Resources
 
 - [CodeIgniter 4 Documentation](https://codeigniter.com/user_guide/)
-- [Laravel Blade Documentation](https://laravel.com/docs/blade)
-- [jenssegers/blade GitHub](https://github.com/jenssegers/blade)
+- [Laravel Blade Documentation](https://laravel.com/docs/blade) (Syntax reference)
+- [BladeOne GitHub](https://github.com/EFTEC/BladeOne)
 - [Cockpit CMS](https://getcockpit.com/)
 - [Cockpit API Documentation](https://getcockpit.com/documentation/api)
 - See `BLADE.md` for complete Blade integration guide
@@ -154,4 +154,4 @@ This project integrates with Cockpit CMS by:
 
 **Last Updated**: 2026-01-06
 **Project Type**: Starter/Demo
-**Primary Goal**: Demonstrate CodeIgniter 4 + Laravel Blade + Cockpit CMS integration
+**Primary Goal**: Demonstrate CodeIgniter 4 + BladeOne + Cockpit CMS integration

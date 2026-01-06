@@ -16,14 +16,8 @@
     <div style="max-width: 800px; margin: 0 auto; text-align: left;">
         <h3 style="margin: 2rem 0 1rem; color: #34495e;">Features</h3>
         <ul style="list-style: none; padding: 0;">
-            @foreach([
-                'Laravel Blade templating engine (jenssegers/blade)',
-                'CodeIgniter 4 framework',
-                'Cockpit CMS integration ready',
-                'Blade layouts and components support',
-                'Custom Blade directives available',
-                'No database required - API-driven content'
-            ] as $feature)
+            <?php $features = ['BladeOne templating engine (EFTEC)', 'CodeIgniter 4 framework', 'Cockpit CMS integration ready', 'Blade layouts and components support', 'Custom Blade directives available', 'No database required - API-driven content']; ?>
+            @foreach($features as $feature)
                 <li style="padding: 0.5rem 0; border-bottom: 1px solid #ecf0f1;">
                     ✓ {{ $feature }}
                 </li>

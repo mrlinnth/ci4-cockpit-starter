@@ -1,21 +1,24 @@
 # CodeIgniter 4 + Cockpit CMS + Blade Starter
 
-A modern starter template integrating **CodeIgniter 4**, **Laravel Blade templating**, and **Cockpit CMS** as a headless content management system.
+A modern starter template integrating **CodeIgniter 4**, **BladeOne templating**, and **Cockpit CMS** as a headless content management system.
 
 ## 🚀 Features
 
 - **CodeIgniter 4** - Lightweight, fast PHP framework
-- **Laravel Blade** - Powerful templating engine (via `jenssegers/blade`)
+- **BladeOne** - Powerful Blade templating engine (via `eftec/bladeone`)
 - **Cockpit CMS** - Headless CMS for flexible content management
+- **Zero Dependencies** - BladeOne is standalone with no heavy packages
 - **API-Driven** - No local database required
 - **Modern Stack** - PHP 8.1+, Composer-based dependencies
 
 ## 📋 What's Included
 
-- ✅ Blade templating engine fully integrated with CI4
+- ✅ BladeOne templating engine fully integrated with CI4
 - ✅ Helper functions for easy Blade rendering
 - ✅ Example Blade layouts and components
 - ✅ BladeView library for advanced usage
+- ✅ Zero dependencies - single file implementation
+- ✅ Optimized performance - compiles to native PHP
 - ✅ Ready for Cockpit CMS API integration
 - ✅ Auto-loaded Blade helper (`view_blade()`)
 
@@ -220,10 +223,11 @@ blade()->directive('datetime', function($expression) {
 
 ## 📚 Documentation
 
-- **[BLADE.md](BLADE.md)** - Complete Blade integration guide
+- **[BLADE.md](BLADE.md)** - Complete BladeOne integration guide
 - **[CLAUDE.md](CLAUDE.md)** - Project context and AI instructions
 - [CodeIgniter 4 User Guide](https://codeigniter.com/user_guide/)
-- [Laravel Blade Docs](https://laravel.com/docs/blade)
+- [BladeOne GitHub](https://github.com/EFTEC/BladeOne)
+- [Laravel Blade Docs](https://laravel.com/docs/blade) (Syntax reference)
 - [Cockpit CMS API](https://getcockpit.com/documentation/api)
 
 ## 🎯 Architecture
@@ -270,8 +274,8 @@ MIT License - Feel free to use this starter for any project.
 
 ## 🆘 Support
 
-- **Issues**: Check the CodeIgniter and Blade documentation
-- **Blade Package**: [jenssegers/blade](https://github.com/jenssegers/blade)
+- **Issues**: Check the CodeIgniter and BladeOne documentation
+- **BladeOne Package**: [EFTEC/BladeOne](https://github.com/EFTEC/BladeOne)
 - **CI4 Forum**: [forum.codeigniter.com](https://forum.codeigniter.com)
 
 ## 🎓 Learning Resources
@@ -282,4 +286,4 @@ MIT License - Feel free to use this starter for any project.
 
 ---
 
-**Built with** ❤️ **using CodeIgniter 4, Laravel Blade, and Cockpit CMS**
+**Built with** ❤️ **using CodeIgniter 4, BladeOne, and Cockpit CMS**

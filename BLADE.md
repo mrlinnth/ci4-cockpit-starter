@@ -1,13 +1,26 @@
 # Blade Templating Integration
 
-This project uses the **Laravel Blade** templating engine via the [jenssegers/blade](https://github.com/jenssegers/blade) package, integrated seamlessly with CodeIgniter 4.
+This project uses **BladeOne** - a standalone, lightweight Blade templating engine via the [eftec/bladeone](https://github.com/EFTEC/BladeOne) package, integrated seamlessly with CodeIgniter 4.
 
 ## Package Information
 
-- **Package**: `jenssegers/blade`
-- **Version**: Latest stable
+- **Package**: `eftec/bladeone`
+- **Version**: 4.19+
 - **Compatibility**: CodeIgniter 4.x, PHP 8.1+
-- **Maintenance**: Actively maintained and widely used
+- **Dependencies**: ZERO (standalone single file)
+- **Performance**: Compiles to native PHP for optimal speed
+- **Maintenance**: Actively maintained (2025)
+
+## Why BladeOne?
+
+BladeOne was chosen over other Blade implementations for several key reasons:
+
+- **Zero Dependencies**: No heavy Laravel Illuminate packages
+- **Lightweight**: Single file implementation vs. 30+ packages
+- **Better Performance**: Compiles to native PHP, faster execution
+- **CI4 Philosophy**: Aligns with CodeIgniter's lightweight approach
+- **Full Featured**: All Blade features (except dynamic components)
+- **Smaller Footprint**: ~150KB vs. several MB
 
 ## Usage
 
@@ -76,9 +89,38 @@ blade()->directive('datetime', function ($expression) {
     return "<?php echo ($expression)->format('m/d/Y H:i'); ?>";
 });
 
+// Share data across all views
+blade()->share('siteName', 'My Website');
+
+// Set compile mode
+use eftec\bladeone\BladeOne;
+blade()->setMode(BladeOne::MODE_FAST); // Production mode
+
 // Clear the Blade cache
 blade()->clearCache();
 ```
+
+## Compile Modes
+
+BladeOne offers different compilation modes for different environments:
+
+```php
+use eftec\bladeone\BladeOne;
+
+// MODE_AUTO (0) - Default: checks if compiled file has changed
+blade()->setMode(BladeOne::MODE_AUTO);
+
+// MODE_SLOW (1) - Development: always recompiles
+blade()->setMode(BladeOne::MODE_SLOW);
+
+// MODE_FAST (2) - Production: never recompiles
+blade()->setMode(BladeOne::MODE_FAST);
+
+// MODE_DEBUG (5) - Debug: always compiles with identifiable filenames
+blade()->setMode(BladeOne::MODE_DEBUG);
+```
+
+The library automatically sets `MODE_FAST` in production and `MODE_AUTO` in development.
 
 ## View Files
 
@@ -107,9 +149,11 @@ app/Views/
 <html>
 <head>
     <title>@yield('title')</title>
+    @stack('styles')
 </head>
 <body>
     @yield('content')
+    @stack('scripts')
 </body>
 </html>
 ```
@@ -123,6 +167,10 @@ app/Views/
 @section('content')
     <h1>Page Content</h1>
 @endsection
+
+@push('scripts')
+    <script src="/js/custom.js"></script>
+@endpush
 ```
 
 ### Control Structures
@@ -146,10 +194,23 @@ app/Views/
     <p>{{ $i }}</p>
 @endfor
 
+@while($count < 10)
+    <p>{{ $count++ }}</p>
+@endwhile
+
 {{-- Unless --}}
 @unless($user->isGuest())
     <p>Welcome back!</p>
 @endunless
+
+{{-- Empty/Isset --}}
+@empty($records)
+    <p>No records found</p>
+@endempty
+
+@isset($name)
+    <p>Name: {{ $name }}</p>
+@endisset
 ```
 
 ### Including Views
@@ -158,6 +219,12 @@ app/Views/
 @include('partials.header')
 
 @include('partials.sidebar', ['menu' => $menuItems])
+
+{{-- Include if exists --}}
+@includeIf('partials.optional')
+
+{{-- Include when condition is true --}}
+@includeWhen($isAdmin, 'partials.admin')
 ```
 
 ### Components
@@ -187,6 +254,9 @@ app/Views/
 
 {{-- With default value --}}
 <p>{{ $name ?? 'Guest' }}</p>
+
+{{-- Comment (not rendered) --}}
+{{-- This is a Blade comment --}}
 ```
 
 ## Integration with Cockpit CMS
@@ -233,9 +303,7 @@ class Articles extends BaseController
 
     @if(count($articles) > 0)
         @foreach($articles as $article)
-            @include('components.card', [
-                'title' => $article['title']
-            ])
+            @include('components.card', ['title' => $article['title']])
                 <p>{{ $article['description'] }}</p>
                 <a href="/articles/{{ $article['_id'] }}">Read more</a>
             @endinclude
@@ -255,6 +323,11 @@ You can create custom Blade directives for reusable logic:
 blade()->directive('copyright', function () {
     return "<?php echo '&copy; ' . date('Y') . ' My Company'; ?>";
 });
+
+// Directive with parameters
+blade()->directive('datetime', function ($expression) {
+    return "<?php echo ($expression)->format('m/d/Y H:i'); ?>";
+});
 ```
 
 Use in views:
@@ -262,17 +335,67 @@ Use in views:
 <footer>
     @copyright
 </footer>
+
+<p>Posted: @datetime($post->created_at)</p>
+```
+
+## Sharing Data Across Views
+
+Share variables that should be available in all views:
+
+```php
+// In a controller or BaseController
+blade()->share('appName', 'My Application');
+blade()->share('currentYear', date('Y'));
+```
+
+Access in any view:
+```blade
+<h1>{{ $appName }}</h1>
+<footer>&copy; {{ $currentYear }}</footer>
 ```
 
 ## Cache Management
 
-Blade caches compiled views in `writable/cache/blade/`. To clear the cache:
+BladeOne caches compiled views in `writable/cache/blade/`.
+
+### Clear Cache Programmatically
 
 ```php
 blade()->clearCache();
 ```
 
-Or manually delete files in `writable/cache/blade/`.
+### Clear Cache Manually
+
+```bash
+rm -rf writable/cache/blade/*
+```
+
+### Cache Modes
+
+- **Production**: Use `MODE_FAST` - never recompiles (fastest)
+- **Development**: Use `MODE_AUTO` - checks if source changed (balanced)
+- **Debugging**: Use `MODE_DEBUG` - always recompiles with readable names
+
+## Important Notes
+
+### Inline Arrays in @foreach
+
+BladeOne may not handle multi-line inline arrays well. Use this pattern instead:
+
+```blade
+{{-- ✗ Avoid multi-line arrays --}}
+@foreach([
+    'item1',
+    'item2'
+] as $item)
+
+{{-- ✓ Use single-line or PHP variable --}}
+<?php $items = ['item1', 'item2', 'item3']; ?>
+@foreach($items as $item)
+    {{ $item }}
+@endforeach
+```
 
 ## Features
 
@@ -283,11 +406,14 @@ Or manually delete files in `writable/cache/blade/`.
 - ✅ Automatic escaping for security
 - ✅ Compiled template caching for performance
 - ✅ Seamless CI4 integration
+- ✅ Zero dependencies
+- ✅ Lightweight footprint
+- ✅ Production-ready modes
 
 ## Resources
 
-- [Laravel Blade Documentation](https://laravel.com/docs/blade)
-- [jenssegers/blade GitHub](https://github.com/jenssegers/blade)
+- [BladeOne GitHub](https://github.com/EFTEC/BladeOne)
+- [Laravel Blade Documentation](https://laravel.com/docs/blade) (Syntax reference)
 - [CodeIgniter 4 Documentation](https://codeigniter.com/user_guide/)
 
 ## Troubleshooting
@@ -297,6 +423,11 @@ Or manually delete files in `writable/cache/blade/`.
 If views aren't updating, clear the Blade cache:
 ```php
 blade()->clearCache();
+```
+
+Or manually:
+```bash
+rm -rf writable/cache/blade/*
 ```
 
 ### Permission Errors
@@ -311,3 +442,28 @@ chmod -R 755 writable/cache/blade/
 - Verify the view file exists in `app/Views/`
 - Check the file has `.blade.php` extension
 - Use dot notation or slashes: `view_blade('layouts.master')` or `view_blade('layouts/master')`
+
+### Parsing Errors
+
+If you encounter parse errors in compiled files:
+- Avoid multi-line inline arrays in directives
+- Check for mismatched `@section` / `@endsection` pairs
+- Clear cache and try again
+
+## Performance Tips
+
+1. **Use MODE_FAST in production** - Disable automatic recompilation
+2. **Minimize includes** - Each include adds overhead
+3. **Cache API data** - Don't fetch on every request
+4. **Use layouts wisely** - Avoid deep nesting
+5. **Keep cache directory clean** - Old files won't auto-delete
+
+## Migration from jenssegers/blade
+
+If migrating from jenssegers/blade:
+
+- BladeOne uses `run()` internally but our wrapper provides `render()`
+- All Blade syntax remains the same
+- Replace multi-line inline arrays in `@foreach`
+- Custom directives work identically
+- No other code changes needed

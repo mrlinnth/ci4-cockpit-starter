@@ -42,9 +42,6 @@ abstract class WebController extends BaseController
      */
     public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger)
     {
-        // Load blade helper
-        helper('blade');
-
         parent::initController($request, $response, $logger);
 
         // Initialize Blade view engine

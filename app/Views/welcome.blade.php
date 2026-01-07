@@ -26,17 +26,21 @@
 
         <h3 style="margin: 2rem 0 1rem; color: #34495e;">Quick Start</h3>
         <div style="background: #ecf0f1; padding: 1.5rem; border-radius: 5px;">
-            <h4 style="margin-bottom: 0.5rem;">In your controller:</h4>
-            <pre style="background: #2c3e50; color: #ecf0f1; padding: 1rem; border-radius: 3px; overflow-x: auto;"><code>public function index()
+            <h4 style="margin-bottom: 0.5rem;">Extend WebController (Recommended):</h4>
+            <pre style="background: #2c3e50; color: #ecf0f1; padding: 1rem; border-radius: 3px; overflow-x: auto;"><code>class Home extends WebController
 {
-    return view_blade('welcome', [
-        'title' => 'My Page',
-        'data' => $cockpitData
-    ]);
+    public function index()
+    {
+        $data = $this->cockpit->getSingletonCached('homepage');
+        return $this->render('welcome', ['data' => $data]);
+    }
 }</code></pre>
 
-            <h4 style="margin: 1.5rem 0 0.5rem;">Or use the BladeView library:</h4>
-            <pre style="background: #2c3e50; color: #ecf0f1; padding: 1rem; border-radius: 3px; overflow-x: auto;"><code>$blade = new \App\Libraries\BladeView();
+            <h4 style="margin: 1.5rem 0 0.5rem;">Or use Services directly:</h4>
+            <pre style="background: #2c3e50; color: #ecf0f1; padding: 1rem; border-radius: 3px; overflow-x: auto;"><code>use Config\Services;
+
+$blade = Services::blade();
+$cockpit = Services::cockpit();
 echo $blade->render('welcome', $data);</code></pre>
         </div>
 

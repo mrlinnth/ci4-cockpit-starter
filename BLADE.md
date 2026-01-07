@@ -24,16 +24,16 @@ BladeOne was chosen over other Blade implementations for several key reasons:
 
 ## Usage
 
-### Method 1: Using the Helper Function (Recommended)
+### Method 1: Using WebController (Recommended for Web Pages)
 
-The easiest way to render Blade views is using the `view_blade()` helper function:
+All web page controllers should extend `WebController` and use the `render()` method:
 
 ```php
 <?php
 
 namespace App\Controllers;
 
-class Home extends BaseController
+class Home extends WebController
 {
     public function index()
     {
@@ -42,27 +42,27 @@ class Home extends BaseController
             'items' => ['Item 1', 'Item 2', 'Item 3']
         ];
 
-        return view_blade('welcome', $data);
+        return $this->render('welcome', $data);
     }
 }
 ```
 
-### Method 2: Using the BladeView Library
+### Method 2: Using Services (For Non-Web Controllers)
 
-For more control, you can use the `BladeView` library directly:
+For API controllers or CLI commands, use the Services layer:
 
 ```php
 <?php
 
 namespace App\Controllers;
 
-use App\Libraries\BladeView;
+use Config\Services;
 
-class Home extends BaseController
+class Api extends BaseController
 {
     public function index()
     {
-        $blade = new BladeView();
+        $blade = Services::blade();
 
         $data = [
             'title' => 'Welcome',
@@ -74,30 +74,35 @@ class Home extends BaseController
 }
 ```
 
-### Method 3: Using the blade() Helper
+### Advanced Operations
 
-Get the BladeView instance for advanced operations:
+Get the BladeView instance via Services for advanced operations:
 
 ```php
 <?php
 
+use Config\Services;
+
+// Get BladeView instance
+$blade = Services::blade();
+
 // Render a view
-echo blade()->render('myview', $data);
+echo $blade->render('myview', $data);
 
 // Add a custom directive
-blade()->directive('datetime', function ($expression) {
+$blade->directive('datetime', function ($expression) {
     return "<?php echo ($expression)->format('m/d/Y H:i'); ?>";
 });
 
 // Share data across all views
-blade()->share('siteName', 'My Website');
+$blade->share('siteName', 'My Website');
 
 // Set compile mode
 use eftec\bladeone\BladeOne;
-blade()->setMode(BladeOne::MODE_FAST); // Production mode
+$blade->setMode(BladeOne::MODE_FAST); // Production mode
 
 // Clear the Blade cache
-blade()->clearCache();
+$blade->clearCache();
 ```
 
 ## Compile Modes
@@ -105,19 +110,22 @@ blade()->clearCache();
 BladeOne offers different compilation modes for different environments:
 
 ```php
+use Config\Services;
 use eftec\bladeone\BladeOne;
 
+$blade = Services::blade();
+
 // MODE_AUTO (0) - Default: checks if compiled file has changed
-blade()->setMode(BladeOne::MODE_AUTO);
+$blade->setMode(BladeOne::MODE_AUTO);
 
 // MODE_SLOW (1) - Development: always recompiles
-blade()->setMode(BladeOne::MODE_SLOW);
+$blade->setMode(BladeOne::MODE_SLOW);
 
 // MODE_FAST (2) - Production: never recompiles
-blade()->setMode(BladeOne::MODE_FAST);
+$blade->setMode(BladeOne::MODE_FAST);
 
 // MODE_DEBUG (5) - Debug: always compiles with identifiable filenames
-blade()->setMode(BladeOne::MODE_DEBUG);
+$blade->setMode(BladeOne::MODE_DEBUG);
 ```
 
 The library automatically sets `MODE_FAST` in production and `MODE_AUTO` in development.
@@ -268,25 +276,16 @@ Example controller fetching data from Cockpit API and rendering with Blade:
 
 namespace App\Controllers;
 
-use CodeIgniter\HTTP\CURLRequest;
-
-class Articles extends BaseController
+class Articles extends WebController
 {
     public function index()
     {
-        // Fetch data from Cockpit CMS
-        $client = \Config\Services::curlrequest();
-        $response = $client->get(env('COCKPIT_API_URL') . '/collections/get/articles', [
-            'headers' => [
-                'Cockpit-Token' => env('COCKPIT_API_TOKEN')
-            ]
-        ]);
+        // Fetch data from Cockpit CMS using the CockpitService
+        $articles = $this->cockpit->getCollectionCached('articles', ['published' => true]);
 
-        $articles = json_decode($response->getBody(), true);
-
-        // Render with Blade
-        return view_blade('articles.index', [
-            'articles' => $articles['entries'] ?? []
+        // Render with Blade using WebController's render method
+        return $this->render('articles.index', [
+            'articles' => $articles
         ]);
     }
 }
@@ -320,12 +319,16 @@ You can create custom Blade directives for reusable logic:
 
 ```php
 // In a controller or bootstrap file
-blade()->directive('copyright', function () {
+use Config\Services;
+
+$blade = Services::blade();
+
+$blade->directive('copyright', function () {
     return "<?php echo '&copy; ' . date('Y') . ' My Company'; ?>";
 });
 
 // Directive with parameters
-blade()->directive('datetime', function ($expression) {
+$blade->directive('datetime', function ($expression) {
     return "<?php echo ($expression)->format('m/d/Y H:i'); ?>";
 });
 ```
@@ -345,8 +348,11 @@ Share variables that should be available in all views:
 
 ```php
 // In a controller or BaseController
-blade()->share('appName', 'My Application');
-blade()->share('currentYear', date('Y'));
+use Config\Services;
+
+$blade = Services::blade();
+$blade->share('appName', 'My Application');
+$blade->share('currentYear', date('Y'));
 ```
 
 Access in any view:
@@ -362,7 +368,9 @@ BladeOne caches compiled views in `writable/cache/blade/`.
 ### Clear Cache Programmatically
 
 ```php
-blade()->clearCache();
+use Config\Services;
+
+Services::blade()->clearCache();
 ```
 
 ### Clear Cache Manually
@@ -422,7 +430,9 @@ BladeOne may not handle multi-line inline arrays well. Use this pattern instead:
 
 If views aren't updating, clear the Blade cache:
 ```php
-blade()->clearCache();
+use Config\Services;
+
+Services::blade()->clearCache();
 ```
 
 Or manually:
@@ -441,7 +451,7 @@ chmod -R 755 writable/cache/blade/
 
 - Verify the view file exists in `app/Views/`
 - Check the file has `.blade.php` extension
-- Use dot notation or slashes: `view_blade('layouts.master')` or `view_blade('layouts/master')`
+- Use dot notation or slashes: `$this->render('layouts.master')` or `Services::blade()->render('layouts/master')`
 
 ### Parsing Errors
 

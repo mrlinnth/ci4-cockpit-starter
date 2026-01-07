@@ -7,20 +7,16 @@ A modern starter template integrating **CodeIgniter 4**, **BladeOne templating**
 - **CodeIgniter 4** - Lightweight, fast PHP framework
 - **BladeOne** - Powerful Blade templating engine (via `eftec/bladeone`)
 - **Cockpit CMS** - Headless CMS for flexible content management
-- **Zero Dependencies** - BladeOne is standalone with no heavy packages
 - **API-Driven** - No local database required
 - **Modern Stack** - PHP 8.1+, Composer-based dependencies
 
 ## 📋 What's Included
 
+- ✅ Services layer for clean architecture
+- ✅ WebController base class for web pages
 - ✅ BladeOne templating engine fully integrated with CI4
-- ✅ Helper functions for easy Blade rendering
 - ✅ Example Blade layouts and components
-- ✅ BladeView library for advanced usage
-- ✅ Zero dependencies - single file implementation
-- ✅ Optimized performance - compiles to native PHP
-- ✅ Ready for Cockpit CMS API integration
-- ✅ Auto-loaded Blade helper (`view_blade()`)
+- ✅ CockpitService with built-in caching
 
 ## 📦 Installation
 
@@ -49,7 +45,7 @@ A modern starter template integrating **CodeIgniter 4**, **BladeOne templating**
 
 3. **Configure environment**
    ```bash
-   cp env .env
+   cp env.example .env
    ```
 
    Edit `.env` and configure:
@@ -78,11 +74,11 @@ A modern starter template integrating **CodeIgniter 4**, **BladeOne templating**
 
 namespace App\Controllers;
 
-class Home extends BaseController
+class Home extends WebController
 {
     public function index()
     {
-        return view_blade('welcome', [
+        return $this->render('welcome', [
             'title' => 'Welcome to CI4 + Blade',
             'items' => ['Feature 1', 'Feature 2', 'Feature 3']
         ]);
@@ -128,23 +124,16 @@ cockpit.apiToken = your-api-token-here
 
 namespace App\Controllers;
 
-class Articles extends BaseController
+class Articles extends WebController
 {
     public function index()
     {
-        // Fetch from Cockpit API
-        $client = \Config\Services::curlrequest();
-        $response = $client->get(env('cockpit.apiUrl') . '/collections/get/articles', [
-            'headers' => [
-                'Cockpit-Token' => env('cockpit.apiToken')
-            ]
-        ]);
-
-        $data = json_decode($response->getBody(), true);
+        // Fetch from Cockpit CMS using the CockpitService (with caching)
+        $articles = $this->cockpit->getCollectionCached('articles', ['published' => true]);
 
         // Render with Blade
-        return view_blade('articles.index', [
-            'articles' => $data['entries'] ?? []
+        return $this->render('articles.index', [
+            'articles' => $articles
         ]);
     }
 }
@@ -177,8 +166,7 @@ ci4-cockpit-starter/
 │   │   ├── layouts/         # Master layouts
 │   │   ├── components/      # Reusable components
 │   │   └── welcome.blade.php
-│   ├── Libraries/           # BladeView library
-│   ├── Helpers/             # blade_helper.php
+│   ├── Libraries/           # BladeView, CockpitService
 │   └── ...
 ├── public/                  # Web root
 │   └── index.php           # Application entry point
@@ -203,20 +191,24 @@ ci4-cockpit-starter/
 - Automatic XSS protection
 - Template caching for performance
 
-### Helper Functions
+### Services Layer
 
 ```php
-// Render a Blade view
-view_blade('viewname', $data);
+use Config\Services;
 
 // Get BladeView instance
-blade()->render('viewname', $data);
+$blade = Services::blade();
+$blade->render('viewname', $data);
+
+// Get CockpitService instance
+$cockpit = Services::cockpit();
+$data = $cockpit->getSingletonCached('homepage');
 
 // Clear Blade cache
-blade()->clearCache();
+Services::blade()->clearCache();
 
 // Add custom directive
-blade()->directive('datetime', function($expression) {
+Services::blade()->directive('datetime', function($expression) {
     return "<?php echo ($expression)->format('Y-m-d H:i'); ?>";
 });
 ```
@@ -253,9 +245,10 @@ This project follows a **headless CMS architecture**:
 ### Important Files
 
 - **`.env`** - Environment configuration
-- **`app/Config/Autoload.php`** - Auto-loads Blade helper
+- **`app/Config/Services.php`** - Service definitions (blade, cockpit)
+- **`app/Controllers/WebController.php`** - Base controller for web pages
 - **`app/Libraries/BladeView.php`** - Blade integration library
-- **`app/Helpers/blade_helper.php`** - Helper functions
+- **`app/Libraries/CockpitService.php`** - Cockpit CMS API client with caching
 
 ## 🚨 Important Notes
 

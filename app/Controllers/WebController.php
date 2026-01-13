@@ -18,6 +18,7 @@ use Config\Services;
  * All web pages should extend this controller instead of BaseController
  *
  * @package App\Controllers
+ * @method string render(string $view, array $data = []) Render a Blade view
  */
 abstract class WebController extends BaseController
 {

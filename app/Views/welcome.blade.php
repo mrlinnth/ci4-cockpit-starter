@@ -6,6 +6,11 @@
 
 @section('content')
 <div class="text-center py-8">
+    <div class="max-w-4xl mx-auto text-left">
+        <div class="card bg-base-100 shadow-xl mb-6">
+            <pre>{{ var_dump($settings) }}</pre>
+        </div>
+    </div>
     <div class="hero min-h-[200px] bg-base-200 rounded-box mb-8">
         <div class="hero-content text-center">
             <div class="max-w-md">
@@ -42,10 +47,10 @@
                 ]; ?>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     @foreach($features as $feature)
-                        <div class="flex items-center gap-3 p-3 bg-base-200 rounded-lg hover:bg-base-300 transition-colors">
-                            <span class="text-2xl">{{ $feature['icon'] }}</span>
-                            <span>{{ $feature['text'] }}</span>
-                        </div>
+                    <div class="flex items-center gap-3 p-3 bg-base-200 rounded-lg hover:bg-base-300 transition-colors">
+                        <span class="text-2xl">{{ $feature['icon'] }}</span>
+                        <span>{{ $feature['text'] }}</span>
+                    </div>
                     @endforeach
                 </div>
             </div>

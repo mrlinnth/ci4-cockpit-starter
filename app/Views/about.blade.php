@@ -10,14 +10,58 @@
     <div class="hero bg-gradient-to-r from-primary to-secondary text-primary-content rounded-box mb-8">
         <div class="hero-content text-center py-12">
             <div class="max-w-2xl">
+                @if($settings['site_title'] ?? null)
+                <h1 class="text-5xl font-bold mb-4">{{ $settings['site_title'] }}</h1>
+                @else
                 <h1 class="text-5xl font-bold mb-4">About Our Project</h1>
+                @endif
+
+                @if($settings['site_description'] ?? null)
+                <p class="text-lg opacity-90">{{ $settings['site_description'] }}</p>
+                @else
                 <p class="text-lg opacity-90">
                     A modern starter template combining the power of CodeIgniter 4, BladeOne templating,
                     daisyUI components, and Cockpit CMS.
                 </p>
+                @endif
             </div>
         </div>
     </div>
+
+    {{-- Author Info Section --}}
+    @if(($settings['author_name'] ?? null) || ($settings['author_bio'] ?? null))
+    <div class="card bg-base-100 shadow-xl mb-8">
+        <div class="card-body">
+            <h2 class="card-title text-3xl mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                </svg>
+                About the Author
+            </h2>
+            <div class="flex flex-col md:flex-row gap-6">
+                @if($settings['author_name'] ?? null)
+                <div class="flex-1">
+                    <h3 class="text-xl font-semibold mb-2">{{ $settings['author_name'] }}</h3>
+                    @if($settings['author_bio'] ?? null)
+                    <p class="text-lg leading-relaxed">{{ $settings['author_bio'] }}</p>
+                    @endif
+                </div>
+                @endif
+
+                @if($settings['github_link'] ?? null)
+                <div class="flex items-start gap-3">
+                    <a href="{{ $settings['github_link'] }}" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" class="w-6 h-6 fill-current">
+                            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+                        </svg>
+                        Visit GitHub Profile
+                    </a>
+                </div>
+                @endif
+            </div>
+        </div>
+    </div>
+    @endif
 
     {{-- Mission Statement --}}
     <div class="card bg-base-100 shadow-xl mb-8">

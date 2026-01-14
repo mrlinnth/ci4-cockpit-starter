@@ -6,11 +6,6 @@
 
 @section('content')
 <div class="text-center py-8">
-    <div class="max-w-4xl mx-auto text-left">
-        <div class="card bg-base-100 shadow-xl mb-6">
-            <pre>{{ var_dump($settings) }}</pre>
-        </div>
-    </div>
     <div class="hero min-h-[200px] bg-base-200 rounded-box mb-8">
         <div class="hero-content text-center">
             <div class="max-w-md">

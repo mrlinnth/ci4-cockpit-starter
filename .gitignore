@@ -87,6 +87,11 @@ phpunit
 vendor/
 
 #-------------------------
+# Node / NPM
+#-------------------------
+node_modules/
+
+#-------------------------
 # IDE / Development Files
 #-------------------------
 
@@ -120,7 +125,9 @@ _modules/*
 /api/
 
 # Visual Studio Code
-.vscode/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
 
 /results/
 /phpunit*.xml

@@ -214,6 +214,13 @@ class CockpitService
 
             $options = [];
             if (!empty($params)) {
+                // Cockpit API expects filter and sort as URL-encoded JSON strings
+                if (isset($params['filter']) && is_array($params['filter'])) {
+                    $params['filter'] = json_encode($params['filter']);
+                }
+                if (isset($params['sort']) && is_array($params['sort'])) {
+                    $params['sort'] = json_encode($params['sort']);
+                }
                 $options['query'] = $params;
             }
 

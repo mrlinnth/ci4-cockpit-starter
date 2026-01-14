@@ -4,7 +4,7 @@ A modern starter template integrating **CodeIgniter 4**, **BladeOne templating**
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ```bash
 # Clone and setup
@@ -32,7 +32,7 @@ Visit: `http://localhost:8080`
 
 ---
 
-## ✨ Features
+## Features
 
 ### Core Technologies
 - **CodeIgniter 4** - Lightweight, fast PHP framework
@@ -52,7 +52,7 @@ Visit: `http://localhost:8080`
 
 ---
 
-## 📋 What's Included
+## What's Included
 
 - ✅ `WebController` base class for web pages
 - ✅ `BladeView` service with CI4 integration
@@ -63,7 +63,7 @@ Visit: `http://localhost:8080`
 
 ---
 
-## 📦 Installation
+## Installation
 
 ### Requirements
 
@@ -122,7 +122,7 @@ Visit: `http://localhost:8080`
 
 ---
 
-## 🎨 Using Blade Templates
+## Using Blade Templates
 
 ### Basic Example
 
@@ -170,11 +170,11 @@ class Home extends WebController
 - Automatic XSS protection
 - Template caching
 
-> 📖 For complete Blade documentation, see **[BLADE.md](BLADE.md)**
+> For complete Blade documentation, see **[BLADE.md](BLADE.md)**
 
 ---
 
-## 🎨 Styling with daisyUI
+## Styling with daisyUI
 
 ### Quick Examples
 
@@ -224,7 +224,7 @@ class Home extends WebController
 
 ---
 
-## 🌐 Cockpit CMS Integration
+## Cockpit CMS Integration
 
 ### Configuration
 
@@ -276,7 +276,7 @@ class Articles extends WebController
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 ci4-cockpit-starter/
@@ -310,7 +310,7 @@ ci4-cockpit-starter/
 
 ---
 
-## 🎯 Architecture
+## Architecture
 
 ```
 ┌─────────────┐      ┌──────────────┐      ┌──────────────┐      ┌─────────────┐
